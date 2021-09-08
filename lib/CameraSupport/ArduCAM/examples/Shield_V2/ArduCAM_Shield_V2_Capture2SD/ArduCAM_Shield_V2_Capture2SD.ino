@@ -4,7 +4,7 @@
 // of the library with a supported camera modules, and can run on any Arduino platform.
 //
 // This demo was made for ARDUCAM_SHIELD_REVC.
-// It will run the ArduCAM ESP8266 2MP/3MP/5MP as a real 2MP/3MP/5MP digital camera, provide both JPEG capture.
+// It will run the ArduCAM ESP8266 5MP as a real 2MP digital camera, provide both JPEG capture.
 // The demo sketch will do the following tasks:
 // 1. Set the sensor to JPEG mode.
 // 2. Capture and buffer the image to FIFO every 5 seconds 
@@ -18,7 +18,7 @@
 #include <SD.h>
 #include "memorysaver.h"
 //This demo can only work on ARDUCAM_SHIELD_V2  platform.
-#if !(defined (ARDUCAM_SHIELD_V2)&&(defined (OV5640_CAM) ||defined (OV5642_CAM)||defined (OV2640_CAM)||defined (OV3640_CAM)))
+#if !(defined (ARDUCAM_SHIELD_V2)&&(defined (OV5640_CAM) ||defined (OV5642_CAM)||defined (OV2640_CAM)))
 #error Please select the hardware platform and camera module in the ../libraries/ArduCAM/memorysaver.h file
 #endif
 #if defined(ESP8266)
@@ -30,8 +30,6 @@
 #endif
 #if defined (OV2640_CAM)
   ArduCAM myCAM(OV2640, SPI_CS);
-#elif defined (OV3640_CAM)
-  ArduCAM myCAM(OV3640, SPI_CS);
 #elif defined (OV5640_CAM)
   ArduCAM myCAM(OV5640, SPI_CS);
 #elif defined (OV5642_CAM)
@@ -130,16 +128,8 @@ Serial.begin(115200);
 Serial.println(F("ArduCAM Start!"));
 //set the CS as an output:
 pinMode(SPI_CS,OUTPUT);
-digitalWrite(SPI_CS, HIGH);
 // initialize SPI:
 SPI.begin();
- 
-//Reset the CPLD
-myCAM.write_reg(0x07, 0x80);
-delay(100);
-myCAM.write_reg(0x07, 0x00);
-delay(100);
- 
 while(1){
   //Check if the ArduCAM SPI bus is OK
   myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
@@ -169,22 +159,9 @@ while(1){
       Serial.println(F("OV2640 detected."));break;
     }
   } 
-#elif defined (OV3640_CAM)
-while(1){
-  //Check if the camera module type is OV3640
-  myCAM.wrSensorReg16_8(0xff, 0x01);
-  myCAM.rdSensorReg16_8(OV3640_CHIPID_HIGH, &vid);
-  myCAM.rdSensorReg16_8(OV3640_CHIPID_LOW, &pid);
-  if((vid != 0x36) || (pid != 0x4C)){
-    Serial.println(F("Can't find OV3640 module!"));
-    delay(1000);continue;
-  }else{
-    Serial.println(F("OV3640 detected."));break;
-  } 
- }
 #elif defined (OV5640_CAM)
 while(1){
-  //Check if the camera module type is OV5640
+  //Check if the camera module type is OV5642
   myCAM.wrSensorReg16_8(0xff, 0x01);
   myCAM.rdSensorReg16_8(OV5640_CHIPID_HIGH, &vid);
   myCAM.rdSensorReg16_8(OV5640_CHIPID_LOW, &pid);
@@ -212,15 +189,13 @@ while(1){
 myCAM.set_format(JPEG);
 myCAM.InitCAM();
 #if defined (OV2640_CAM)
-  myCAM.OV2640_set_JPEG_size(OV2640_320x240);delay(1000);
-#elif defined (OV3640_CAM)
-  myCAM.OV3640_set_JPEG_size(OV3640_320x240);delay(1000);
+myCAM.OV2640_set_JPEG_size(OV2640_320x240);delay(1000);
 #elif defined (OV5640_CAM)
-  myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
-  myCAM.OV5640_set_JPEG_size(OV5640_320x240);delay(1000);
+myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
+myCAM.OV5640_set_JPEG_size(OV5640_320x240);delay(1000);
 #elif defined (OV5642_CAM)
-  myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
-  myCAM.OV5642_set_JPEG_size(OV5642_320x240);delay(1000);
+myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
+myCAM.OV5642_set_JPEG_size(OV5642_320x240);delay(1000);
 #endif
 delay(1000);
 }

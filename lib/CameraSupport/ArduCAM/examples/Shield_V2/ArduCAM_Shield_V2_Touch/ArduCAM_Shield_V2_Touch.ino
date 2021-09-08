@@ -15,7 +15,7 @@
 #include <UTFT_SPI.h>
 #include "memorysaver.h"
 //This demo can only work on ARDUCAM_SHIELD_V2  platform.
-#if !(defined (ARDUCAM_SHIELD_V2)&&(defined (OV5640_CAM) ||defined (OV5642_CAM)||defined (OV2640_CAM) || defined (OV3640_CAM)))
+#if !(defined (ARDUCAM_SHIELD_V2)&&(defined (OV5640_CAM) ||defined (OV5642_CAM)||defined (OV2640_CAM)))
 #error Please select the hardware platform and camera module in the ../libraries/ArduCAM/memorysaver.h file
 #endif
 #define  SPI_CS  10
@@ -29,8 +29,6 @@ UTFT myGLCD(SPI_CS);
   ArduCAM myCAM(OV2640, SPI_CS);
 #elif defined (OV5640_CAM)
   ArduCAM myCAM(OV5640, SPI_CS);
-#elif defined (OV3640_CAM)
-  ArduCAM myCAM(OV3640, SPI_CS);
 #elif defined (OV5642_CAM)
   ArduCAM myCAM(OV5642, SPI_CS);
 #endif
@@ -46,14 +44,8 @@ Serial.begin(921600);
 Serial.println(F("ACK CMD ArduCAM Start!"));
 // set the CS as an output:
 pinMode(SPI_CS, OUTPUT);
-digitalWrite(SPI_CS, HIGH);
 // initialize SPI:
 SPI.begin();
-//Reset the CPLD
-myCAM.write_reg(0x07, 0x80);
-delay(100);
-myCAM.write_reg(0x07, 0x00);
-delay(100);
 while(1){
   //Check if the ArduCAM SPI bus is OK
   myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
@@ -88,19 +80,6 @@ else{
       Serial.println(F("OV2640 detected."));break;
     }
   } 
-#elif defined (OV3640_CAM)
-while(1){
-  //Check if the camera module type is OV3640
-  myCAM.wrSensorReg16_8(0xff, 0x01);
-  myCAM.rdSensorReg16_8(OV3640_CHIPID_HIGH, &vid);
-  myCAM.rdSensorReg16_8(OV3640_CHIPID_LOW, &pid);
-  if((vid != 0x36) || (pid != 0x4C)){
-    Serial.println(F("Can't find OV3640 module!"));
-    delay(1000);continue;
-  }else{
-    Serial.println(F("OV3640 detected."));break;
-  } 
- } 
 #elif defined (OV5640_CAM)
 while(1){
   //Check if the camera module type is OV5642
@@ -234,7 +213,7 @@ if (currentPage == 2) {
     myCAM.set_mode(MCU2LCD_MODE);
     myCAM.set_format(BMP);
     myCAM.InitCAM();
-    #if !(defined (OV2640_CAM)||defined (OV3640_CAM))
+    #if !(defined (OV2640_CAM))
     myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);    //VSYNC is active HIGH
     #endif
     while(1){

@@ -20,12 +20,12 @@
 #include "memorysaver.h"
 //This demo was made for Omnivision MT9D111A/MT9D111B/MT9M112/MT9V111_CAM/
 //                                  MT9M001/MT9T112/MT9D112/OV7670/OV7675/
-//                                  OV7725/OV2640/OV3640/OV5640/OV5642 sensor.
+//                                  OV7725/OV2640/OV5640/OV5642 sensor.
 #if !(defined ARDUCAM_SHIELD_V2 && (defined MT9D111A_CAM|| defined MT9D111B_CAM || defined MT9M112_CAM  \
                                  || defined MT9V111_CAM || defined MT9M001_CAM || defined MT9T112_CAM \
                                  || defined MT9D112_CAM || defined OV7670_CAM  || defined OV7675_CAM  \
                                  || defined OV7725_CAM  || defined OV2640_CAM  || defined OV5640_CAM  \
-                                 || defined OV5642_CAM|| defined OV3640_CAM))
+                                 || defined OV5642_CAM))
 #error Please select the hardware platform and camera module in the ../libraries/ArduCAM/memorysaver.h file
 #endif
 #if defined(__arm__)
@@ -69,8 +69,6 @@ const int bmp_header[BMPIMAGEOFFSET] PROGMEM =
   ArduCAM myCAM(OV7725, SPI_CS);
 #elif defined (OV2640_CAM)
   ArduCAM myCAM(OV2640, SPI_CS);
-#elif defined (OV3640_CAM)
-  ArduCAM myCAM(OV3640, SPI_CS);
 #elif defined (OV5640_CAM)
   ArduCAM myCAM(OV5640, SPI_CS);
 #elif defined (OV5642_CAM)
@@ -90,16 +88,8 @@ Serial.begin(115200);
 Serial.println(F("ArduCAM Start!"));
 // set the SPI_CS as an output:
 pinMode(SPI_CS, OUTPUT);
-digitalWrite(SPI_CS, HIGH);
 //initialize SPI:
 SPI.begin();
-  
-//Reset the CPLD
-myCAM.write_reg(0x07, 0x80);
-delay(100);
-myCAM.write_reg(0x07, 0x00);
-delay(100);
-  
 while(1){
   //Check if the ArduCAM SPI bus is OK
   myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
@@ -125,30 +115,6 @@ while(1){
     Serial.println(F("OV2640 detected."));break;
   }
 }
-#elif defined (OV3640_CAM)  
-  while(1){
-    //Check if the camera module type is OV3640
-    myCAM.rdSensorReg16_8(OV3640_CHIPID_HIGH, &vid);
-    myCAM.rdSensorReg16_8(OV3640_CHIPID_LOW, &pid);
-    if ((vid != 0x36) || (pid != 0x4C)){
-      Serial.println(F("Can't find OV3640 module!"));
-      delay(1000);continue; 
-    }else{
-      Serial.println(F("OV3640 detected."));break;    
-    }
- } 
-#elif defined (OV5640_CAM)  
-  while(1){
-    //Check if the camera module type is OV5640
-    myCAM.rdSensorReg16_8(OV5640_CHIPID_HIGH, &vid);
-    myCAM.rdSensorReg16_8(OV5640_CHIPID_LOW, &pid);
-    if ((vid != 0x56) || (pid != 0x40)){
-      Serial.println(F("Can't find OV5640 module!"));
-      delay(1000);continue; 
-    }else{
-      Serial.println(F("OV5640 detected."));break;    
-    }
- } 
 #elif defined (OV5642_CAM)  
 while(1){
   //Check if the camera module type is OV5642
