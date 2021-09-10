@@ -1,3 +1,4 @@
 .DS_Store
 /lib/WiFiSupport/
-
+/lib/CameraSupport/ArduCAM/examples/ESP8266/ArduCAM_ESP8266_UNO_Capture
+Arduino8266-Cheat_sheet.md
