@@ -8,7 +8,11 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-const char msg = 1; // Message sent via ESPNOW
+// Message to be sent via ESPNOW
+typedef struct message{
+  int motion;
+};
+struct message msg;
 
 const int SENSOR_PIN = 15; // D8
 
@@ -23,6 +27,9 @@ void sendCallback(uint8_t *client_mac_addr, uint8_t sendStatus){
 
 void setup() {
   Serial.begin(115200);
+  Serial.print("Server MAC: ");
+  Serial.println(WiFi.macAddress());
+  
 
   /* Begin IO configurations */
   pinMode(SENSOR_PIN, INPUT);
@@ -33,7 +40,7 @@ void setup() {
   WiFi.mode(WIFI_STA);
 
   // ESP-NOW initialization.
-  if(esp_now_init(void) != 0){
+  if(esp_now_init() != 0){
     Serial.println("Error during esp_now_init(void)");
     return;
   }
@@ -45,13 +52,13 @@ void setup() {
   }
 
   // Add an ESP-NOW peer, store MAC address of target device into ESP-NOW MAC list.
-  if(sp_now_add_peer(client_mac_addr, ESP_NOW_ROLE_SLAVE, 1, NULL, 0) != 0){
+  if(esp_now_add_peer(client_mac_addr, ESP_NOW_ROLE_SLAVE, 1, NULL, 0) != 0){
     Serial.println("Error during sp_now_add_peer(client_mac_addr, ESP_NOW_ROLE_SLAVE, 1, NULL, 0)");
     return;
   }
 
   // Register ESP-NOW send callback.
-  if(esp_now_register_send_cb(sendCallback)) != 0){
+  if(esp_now_register_send_cb(sendCallback) != 0){
     Serial.println("Error during esp_now_register_send_cb(sendCallback)");
     return;
   }
@@ -59,17 +66,22 @@ void setup() {
 }
 
 void loop() {
+  // Check for motion & populate struct message
   if(digitalRead(SENSOR_PIN) == HIGH){ // PIR detected motion
     Serial.println("Motion detected.");
     Serial.println("Sending message via ESPNOW!");
-    Serial.println("");
-    
+    msg.motion = 1;
     // Send ESP-NOW packets.
-    if(esp_now_send(client_mac_addr, (unit8_t*) msg, sizeof(msg)){
-      Serial.println("Error during esp_now_send(client_mac_addr, (unit8_t*) msg, sizeof(msg)");
+    if(esp_now_send(NULL, (uint8_t*) &msg, sizeof(msg)) != 0){
+      Serial.println("Error during esp_now_send(NULL, (uint8_t*) &msg, sizeof(msg))");
       return;
     }
-    
-    delay(10000);
+    msg.motion = 0;
+    Serial.println("");
+  }
+  else{
+//    Serial.println("No motion detected");
+//    Serial.println("");
+    msg.motion = 0;
   }
 }

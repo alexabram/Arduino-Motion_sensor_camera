@@ -8,12 +8,18 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-char msg; // Memory for message recv'd via ESPNOW
+// Memory for message to be recv'd via ESPNOW
+typedef struct message{
+  int motion;
+};
+message msg;
 
 const int LED_PIN = 2; // D4
 
 // When recv data, callback here and exec this function
-void recvCallback(uint8_t * sender_mac_addr, uint8_t *msg, uint8_t msg_len){
+void recvCallback(uint8_t * sender_mac_addr, uint8_t *incomingMsg, uint8_t msg_len){
+  Serial.println("Message recv'd");
+  memcpy(&msg, incomingMsg, sizeof(msg));
   digitalWrite(LED_PIN, HIGH); // turn LED on
   delay(10000);
   digitalWrite(LED_PIN, LOW); // turn LED off
@@ -21,6 +27,12 @@ void recvCallback(uint8_t * sender_mac_addr, uint8_t *msg, uint8_t msg_len){
 
 void setup() {
   Serial.begin(115200);
+  WiFi.disconnect();
+  ESP.eraseConfig();
+  // Wifi STA Mode
+  WiFi.mode(WIFI_STA);
+  Serial.print("Client MAC: ");
+  Serial.println(WiFi.macAddress());
 
   
   /* Begin IO configurations */
@@ -30,7 +42,7 @@ void setup() {
 
   /* Begin ESPNOW configurations */
   // ESP-NOW initialization.
-  if(esp_now_init(void) != 0){
+  if(esp_now_init() != 0){
     Serial.println("Error during esp_now_init(void)");
     return;
   }
