@@ -16,7 +16,7 @@ const int SENSOR_PIN = 15; // D8
 uint8_t client_mac_addr[] = {0x30, 0x83, 0x98, 0xB2, 0x4D, 0xB7};
 
 // ESP-NOW send callback
-void sendCallback(uint8_t *mac_addr, uint8_t sendStatus){
+void sendCallback(uint8_t *client_mac_addr, uint8_t sendStatus){
   Serial.print("Status of message send to MAC is ");
   Serial.println(sendStatus);
 }
@@ -32,8 +32,8 @@ void setup() {
   /* Begin ESPNOW configurations */
   WiFi.mode(WIFI_STA);
 
-  // Initialize ESPNOW function
-  if(esp_now_init(void) != ESP_OK){
+  // ESP-NOW initialization.
+  if(esp_now_init(void) != 0){
     Serial.println("Error during esp_now_init(void)");
     return;
   }
