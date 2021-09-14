@@ -20,9 +20,6 @@ const int LED_PIN = 2; // D4
 void recvCallback(uint8_t * sender_mac_addr, uint8_t *incomingMsg, uint8_t msg_len){
   Serial.println("Message recv'd");
   memcpy(&msg, incomingMsg, sizeof(msg));
-  digitalWrite(LED_PIN, HIGH); // turn LED on
-  delay(10000);
-  digitalWrite(LED_PIN, LOW); // turn LED off
 }
 
 void setup() {
@@ -62,6 +59,11 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  if(msg.motion == 1){
+    digitalWrite(LED_PIN, HIGH); // turn LED on
+    delay(10000);
+  }
+  else
+    digitalWrite(LED_PIN, LOW); // turn LED off
+  msg.motion = 0;
 }
