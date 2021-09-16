@@ -7,6 +7,8 @@
 
 #include <ESP8266WiFi.h>
 #include <espnow.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 // Memory for message to be recv'd via ESPNOW
 typedef struct message{
@@ -16,8 +18,9 @@ message msg;
 
 const int LED_PIN = 2; // D4
 const int SPEAKER_PIN = 15; // D8
-const int PUSH_BUTTON_PIN = 4; // D2
+const int PUSH_BUTTON_PIN = 0; // D3
 #define SPEAKER_NOTE_FREQ 227;
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2); // LCD addr, 16 cols, 2 rows
 
 // When recv data, callback here and exec this function
 void recvCallback(uint8_t * sender_mac_addr, uint8_t *incomingMsg, uint8_t msg_len){
@@ -27,18 +30,26 @@ void recvCallback(uint8_t * sender_mac_addr, uint8_t *incomingMsg, uint8_t msg_l
 
 void setup() {
   Serial.begin(115200);
+  
   WiFi.disconnect();
   ESP.eraseConfig();
   // Wifi STA Mode
   WiFi.mode(WIFI_STA);
-  Serial.print("Client MAC: ");
-  Serial.println(WiFi.macAddress());
+//  Serial.print("Client MAC: ");
+//  Serial.println(WiFi.macAddress());
 
   
   /* Begin IO configurations */
   pinMode(LED_PIN, OUTPUT);
   pinMode(SPEAKER_PIN, OUTPUT);
   pinMode(PUSH_BUTTON_PIN, INPUT);
+  
+  lcd.begin(16, 2);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Hello World");
+  delay(1000);
   /* End IO configurations */
 
 
@@ -85,6 +96,7 @@ void check_push_button(){
       delay(1000);
   }
 }
+
 
 void loop() {
   if(msg.motion == 1){
