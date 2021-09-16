@@ -16,6 +16,7 @@ message msg;
 
 const int LED_PIN = 2; // D4
 const int SPEAKER_PIN = 15; // D8
+const int PUSH_BUTTON_PIN = 4; // D2
 #define SPEAKER_NOTE_FREQ 227;
 
 // When recv data, callback here and exec this function
@@ -37,6 +38,7 @@ void setup() {
   /* Begin IO configurations */
   pinMode(LED_PIN, OUTPUT);
   pinMode(SPEAKER_PIN, OUTPUT);
+  pinMode(PUSH_BUTTON_PIN, INPUT);
   /* End IO configurations */
 
 
@@ -62,24 +64,33 @@ void setup() {
 }
 
 void play_note(){
-  int wait_high = SPEAKER_NOTE_FREQ;
-  int P = 2 * wait_high;
-  int k = 1.25 * (1 / (P * 0.001));
+  int wait = SPEAKER_NOTE_FREQ; // wait unit
+  int P = 2 * wait; // wait unit
+  int k = 1.25 * (1 / (P * 0.001)); // loop repeat
   for(int i = 0; i < k; ++i){
     digitalWrite(SPEAKER_PIN, HIGH); // speaker noise on
-    delay(wait_high);
+    delay(wait);
     digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
-    delay(wait_high);
+    delay(wait);
+  }
+}
+
+void check_push_button(){
+  int count = 0;
+  while(count++ < 12)
+  {
+    if(digitalRead(PUSH_BUTTON_PIN) == HIGH)
+      return;
+    else
+      delay(1000);
   }
 }
 
 void loop() {
   if(msg.motion == 1){
-    digitalWrite(LED_PIN, HIGH); // LED on
     play_note();
-//    digitalWrite(SPEAKER_PIN, HIGH); // speaker noise on
-    delay(5000);
-//    digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
+    digitalWrite(LED_PIN, HIGH); // LED on
+    check_push_button(); // elapses 12 seconds
   }
   else{
     digitalWrite(LED_PIN, LOW); // LED off
