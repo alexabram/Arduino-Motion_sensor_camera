@@ -15,6 +15,8 @@ typedef struct message{
 message msg;
 
 const int LED_PIN = 2; // D4
+const int SPEAKER_PIN = 15; // D8
+#define SPEAKER_NOTE_FREQ 227;
 
 // When recv data, callback here and exec this function
 void recvCallback(uint8_t * sender_mac_addr, uint8_t *incomingMsg, uint8_t msg_len){
@@ -34,6 +36,7 @@ void setup() {
   
   /* Begin IO configurations */
   pinMode(LED_PIN, OUTPUT);
+  pinMode(SPEAKER_PIN, OUTPUT);
   /* End IO configurations */
 
 
@@ -58,12 +61,29 @@ void setup() {
   /* End ESPNOW configurations */
 }
 
+void play_note(){
+  int wait_high = SPEAKER_NOTE_FREQ;
+  int P = 2 * wait_high;
+  int k = 1.25 * (1 / (P * 0.001));
+  for(int i = 0; i < k; ++i){
+    digitalWrite(SPEAKER_PIN, HIGH); // speaker noise on
+    delay(wait_high);
+    digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
+    delay(wait_high);
+  }
+}
+
 void loop() {
   if(msg.motion == 1){
-    digitalWrite(LED_PIN, HIGH); // turn LED on
-    delay(10000);
+    digitalWrite(LED_PIN, HIGH); // LED on
+    play_note();
+//    digitalWrite(SPEAKER_PIN, HIGH); // speaker noise on
+    delay(5000);
+//    digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
   }
-  else
-    digitalWrite(LED_PIN, LOW); // turn LED off
+  else{
+    digitalWrite(LED_PIN, LOW); // LED off
+    digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
+  }
   msg.motion = 0;
 }
