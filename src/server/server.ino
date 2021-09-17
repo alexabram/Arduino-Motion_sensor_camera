@@ -9,10 +9,10 @@
 #include <espnow.h>
 
 // Message to be sent via ESPNOW
-typedef struct message{
+typedef struct{
   int motion;
-};
-struct message msg;
+} message;
+message msg;
 
 const int SENSOR_PIN = 15; // D8
 

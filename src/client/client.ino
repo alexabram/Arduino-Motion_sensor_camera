@@ -11,9 +11,9 @@
 #include <LiquidCrystal_I2C.h>
 
 // Memory for message to be recv'd via ESPNOW
-typedef struct message{
+typedef struct{
   int motion;
-};
+} message;
 message msg;
 
 const int LED_PIN = 2; // D4
