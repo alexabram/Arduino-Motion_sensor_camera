@@ -18,7 +18,7 @@ message msg;
 
 const int LED_PIN = 2; // D4
 const int SPEAKER_PIN = 15; // D8
-const int PUSH_BUTTON_PIN = 0; // D3
+const int PUSH_BUTTON_PIN = 16; // D0
 #define SPEAKER_NOTE_FREQ 227;
 LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2); // LCD addr, 16 cols, 2 rows
 
@@ -90,23 +90,27 @@ void check_push_button(){
   int count = 0;
   while(count++ < 12)
   {
-    if(digitalRead(PUSH_BUTTON_PIN) == HIGH)
+    int read = digitalRead(PUSH_BUTTON_PIN);
+    delay(30);
+    if(read == HIGH){ // if push_button is pressed
       return;
-    else
+    }
+    else{
       delay(1000);
+    }
   }
 }
 
+void alerts_off(){
+  digitalWrite(LED_PIN, LOW); // LED off
+}
 
 void loop() {
   if(msg.motion == 1){
     play_note();
     digitalWrite(LED_PIN, HIGH); // LED on
-    check_push_button(); // elapses 12 seconds
-  }
-  else{
-    digitalWrite(LED_PIN, LOW); // LED off
-    digitalWrite(SPEAKER_PIN, LOW); // speaker noise off
+    check_push_button(); // UNCOMMENT IF USING PUSH_BUTTON - elapses 12 seconds
+    alerts_off();
   }
   msg.motion = 0;
 }
