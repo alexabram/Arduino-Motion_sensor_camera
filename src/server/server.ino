@@ -1,10 +1,3 @@
-/*
- * ESPNOW for ESP8266 by Espressif
- * Full API reference documentation: https://www.espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
- * Reference material for setup: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/network/esp_now.html#_CPPv412esp_now_initv
- * Official sample code: https://www.espressif.com/sites/default/files/documentation/esp-now_user_guide_en.pdf
- */
-
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 

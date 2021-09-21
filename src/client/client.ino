@@ -1,10 +1,3 @@
-/*
- * ESPNOW for ESP8266 by Espressif
- * Full API reference documentation: https://www.espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
- * Reference material for setup: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/network/esp_now.html#_CPPv412esp_now_initv
- * Official sample code: https://www.espressif.com/sites/default/files/documentation/esp-now_user_guide_en.pdf
- */
-
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <Wire.h>
@@ -109,20 +102,42 @@ void alerts_off(){
 }
 
 void print_elapsed_time(){
+  if(timeInitial == 0) 
+    return;
   timeFinal = millis()/1000;
   unsigned long sec_elapsed = timeFinal - timeInitial;
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(sec_elapsed);
+  int minutes = sec_elapsed / 60;
+  int hours = sec_elapsed / 3600;
+  int seconds = sec_elapsed % 60;
+  minutes = minutes % 60;
+//  lcd.print(hours + "h " + minutes + "m " + seconds + "s");
+  lcd.print(hours);
+  lcd.print("h ");
+  lcd.print(minutes);
+  lcd.print("m ");
+  lcd.print(seconds);
+  lcd.print("s");
+}
+
+void print_new_alert(){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Alert < 14s ago");
+  lcd.setCursor(0,1);
+  lcd.print("Timer start soon");
 }
 
 void loop() {
   if(msg.motion == 1){
     timeInitial = millis()/1000;
+    print_new_alert();
     play_note();
     digitalWrite(LED_PIN, HIGH); // LED on
-    check_push_button(); // UNCOMMENT IF USING PUSH_BUTTON - elapses 12 seconds
+    check_push_button(); // elapses 12 seconds
     alerts_off();
+    print_elapsed_time();
   }
   print_elapsed_time();
   msg.motion = 0;
